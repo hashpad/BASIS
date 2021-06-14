@@ -218,6 +218,70 @@ class disk:
         wait(2, "Next step in ...")
         press_enter()
 
+class configure_and_install:
+    def install(self):
+        os.system("pacstrap /mnt base linux linux-firmware")
+        success("base, linux and linux-firmware have been installed successfully")
+    def gen_fstab(self):
+        os.system("genfstab -U /mnt >> /mnt/etc/fstab")
+        success("fstab has been generated")
+    def chroot(self):
+        os.system("arch-chroot /mnt")
+        log("chrooting into the new install")
+    def list_continent(self):
+        get_continents = subprocess.getoutput("tree -id -L 1 /usr/share/zoneinfo | tail -n +2 | tail -n -2")
+        self.continents = []
+        for line in get_continents.splitlines():
+            self.continents.append(line)
+            print ('''{''' + str(line.index()) + '''}--''' + line)
+    def list_cities(self, chosen_continent):
+        get_cities = subprocess.getoutput("tree -i -L 1 /usr/share/zoneinfo/" + chosen_continent + " | tail -n +2 | head -n -2")
+        self.cities = []
+        for line in get_cities.splitlines():
+            self.cities.append(line)
+            print ('''{''' + str(line.index()) + '''}--''' + line)
+
+
+    def time_zone(self):
+        clr()
+        interactive("Please choose a continent from the list bellow")
+        self.list_continent()
+        choice = 0
+        while True:
+            choice = int(get_input())
+            if(choice >= len(self.continents) or choice < 0):
+                failed("Continent number is not in the list")
+                continue
+            break
+        self.continent = self.continents[choice]
+
+        interactive("Please choose a country from the list bellow")
+        self.list_cities(self.continent)
+        while True:
+            choice = int(get_input())
+            if(choice >= len(self.continents) or choice < 0):
+                failed("Continent number is not in the list")
+                continue
+            break
+        self.city = self.cities[choice]
+
+        os.system("ln -sf /usr/share/zoneinfo/" + self.continent + "/" + self.city + " /etc/localtime")
+        success("timezone was set successfully")
+
+    def hw_clock(self):
+        os.system("hwclock --systohc")
+        log("Hardware clock set to system clock")
+
+
+    def __init__(self):
+        clr()
+        self.install()
+        self.gen_fstab()
+        self.chroot()
+        self.time_zone()
+        self.hw_clock()
+
+
 #Installer
 class badas:
     bootmode = bootmode()
@@ -233,15 +297,6 @@ class badas:
         self.disk.disk_menu()
 
 
-            # self.pactrap() // Kernel options
-
-            # self.genfstab()
-
-            # self.chroot()
-
-            # self.timezone()
-
-            # self.hwclock()
             
             # self.locale_gen()
 
