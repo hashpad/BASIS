@@ -7,17 +7,17 @@ import socket
 import time
 
 #Globals
-installerPrompt = "badas ~# "
+installerPrompt = "basis ~# "
 logo = '''
 
-  ____    _    ____    _    ____  
- | __ )  / \  |  _ \  / \  / ___| 
- |  _ \ / _ \ | | | |/ _ \ \___ \
- | |_) / ___ \| |_| / ___ \ ___) |
- |____/_/   \_\____/_/   \_\____/
+oooooooooo      o       oooooooo8 ooooo  oooooooo8  
+ 888    888    888     888         888  888         
+ 888oooo88    8  88     888oooooo  888   888oooooo  
+ 888    888  8oooo88           888 888          888 
+o888ooo888 o88o  o888o o88oooo888 o888o o88oooo888
                                
 
- Bliss ARCH+DWM Auto-Installer Script
+ Bliss ARCH Simple Installer Script
 '''
 
 #Prompt Control
@@ -284,7 +284,7 @@ class configure_and_install:
 
 
 #Installer
-class badas:
+class basis:
     bootmode = bootmode()
     network = network()
     keyboard = keyboard()
@@ -316,4 +316,4 @@ class badas:
 
         # self.bootloader()
 
-badas = badas()
+basis = basis()
