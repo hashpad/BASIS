@@ -272,7 +272,7 @@ class configure_and_install:
         os.system("hwclock --systohc")
         log("Hardware clock set to system clock")
 
-    def interactive_install_template():
+    def interactive_install_template(self):
         self.install()
         self.gen_fstab()
         self.chroot()
@@ -298,7 +298,7 @@ class badas:
 
         self.disk.disk_menu()
 
-        self.cai.interactive_install_template()
+        # self.cai.interactive_install_template()
 
 
             
