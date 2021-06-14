@@ -180,7 +180,11 @@ class disk:
                     swap_size = int(get_input())
 
                 self.auto_patition(self.installation_disk[0], swap_size)
+                self.format_disks(self.installation_disk[0])
+                self.mount_file_system(self.installation_disk[0])
+
                 break
+        self.finish_up()
 
             
     def format_disks(self, device):
@@ -202,7 +206,15 @@ class disk:
 
         os.system(parted(device, swap_size).strip())
         success("Disk partitioning has been successfull")
-        self.format_disks(device)
+
+    def mount_file_system(self, device):
+        os.system("mount " + device + "3 /mnt")
+        os.system("mkdir /mnt/boot")
+        os.system("mount " + device + "1 /mnt/boot")
+        success("Systemfiles mounted successfully")
+
+    def finish_up(self):
+        success("Disk configuration has been successfull")
         wait(2, "Next step in ...")
         press_enter()
 
@@ -220,9 +232,6 @@ class badas:
 
         self.disk.disk_menu()
 
-        # self.partition()
-
-        # self.mount_file_system()
 
             # self.pactrap() // Kernel options
 
