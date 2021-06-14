@@ -253,13 +253,25 @@ class disk:
                 continue
             else:
                 self.installation_disk = self.devices[choice]
-                self.auto_patition()
+                interactive("Please enter a swap size in mib (example: for 8GB swap enter 8096)")
+                swap_size = int(get_input())
+                self.auto_patition(self.installation_disk[0], swap_size)
                 break
             
-    def auto_patition(self):
-        def parted():
-            failed("not yet implemented")
-        failed("not yet implemented")
+    def auto_patition(self, device, swap_size):
+        def parted(device, swap_size):
+            return ("parted --script -a optimal " + device + " \
+            unit mib \
+            mklabel gpt \
+            mkpart primary 1 512 \
+            mkpart primary 512 " + str(swap_size) + " \
+            mkpart primary " + str(swap_size) + " 100% set 1 boot on")
+
+        os.system(parted(device, swap_size).strip())
+        success("Disk partitioning has been successfull")
+        wait(2, "Next step in ...")
+        press_enter()
+
 #Installer
 class badas:
     bootmode = bootmode()
