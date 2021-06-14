@@ -272,14 +272,15 @@ class configure_and_install:
         os.system("hwclock --systohc")
         log("Hardware clock set to system clock")
 
-
-    def __init__(self):
-        clr()
+    def interactive_install_template():
         self.install()
         self.gen_fstab()
         self.chroot()
         self.time_zone()
         self.hw_clock()
+
+    def __init__(self):
+        clr()
 
 
 #Installer
@@ -288,6 +289,7 @@ class badas:
     network = network()
     keyboard = keyboard()
     disk = disk()
+    cai = configure_and_install()
     def __init__(self):
         clr()
         self.keyboard.keyboard_menu()
@@ -295,6 +297,8 @@ class badas:
         self.network.network_menu()
 
         self.disk.disk_menu()
+
+        self.cai.interactive_install_template()
 
 
             
