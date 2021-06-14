@@ -205,7 +205,7 @@ class keyboard:
             if(choice > len(self.LAYOUTS) or choice < 0):
                 failed("Layout out of range")
             else:
-                self.set_layout(list(self.LAYOUTS.values())[choice])
+                self.set_layout(list(self.LAYOUTS.keys())[choice])
                 break
         self.finish_up()
 
@@ -229,6 +229,8 @@ class bootmode:
             exit()
 
 class disk:
+    ONE_MIB = 1048576
+    BOOT_SIZE_MiB = 512
     def __init__(self):
         p = subprocess.getoutput(sudo("fdisk -l"))
         compiler = re.compile('Disk (/dev/[a-z0-9]*): ([0-9]*.[0-9]* [G|M]iB).*\n.*: ([a-zA-Z0-9 _-]*)')
@@ -255,17 +257,24 @@ class disk:
                 self.installation_disk = self.devices[choice]
                 interactive("Please enter a swap size in mib (example: for 8GB swap enter 8096)")
                 swap_size = int(get_input())
+
+                device_size_bytes = int(subprocess.getoutput("lsblk -bd -o SIZE " + self.installation_disk[0] + " | tail -n -1"))
+                while (swap_size * self.ONE_MIB >= (device_size_bytes - self.BOOT_SIZE_MiB * self.ONE_MIB)):
+                    failed("swap size is too large")
+                    swap_size = int(get_input())
+
                 self.auto_patition(self.installation_disk[0], swap_size)
                 break
+
             
     def auto_patition(self, device, swap_size):
         def parted(device, swap_size):
             return ("parted --script -a optimal " + device + " \
             unit mib \
             mklabel gpt \
-            mkpart primary 1 512 \
-            mkpart primary 512 " + str(swap_size) + " \
-            mkpart primary " + str(swap_size) + " 100% set 1 boot on")
+            mkpart primary 1 " + str(self.BOOT_SIZE_MiB) + " \
+            mkpart primary "   + str(self.BOOT_SIZE_MiB) + " " + str(self.BOOT_SIZE_MiB + swap_size) + " \
+            mkpart primary " + str(self.BOOT_SIZE_MiB + swap_size) + " 100% set 1 boot on")
 
         os.system(parted(device, swap_size).strip())
         success("Disk partitioning has been successfull")
