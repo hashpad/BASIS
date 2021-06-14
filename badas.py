@@ -105,92 +105,8 @@ class network:
 class keyboard:
     LAYOUTS = {
             "us": "USA",
-            "ad":"Andorra",
-            "af":"Afghanistan",
-            "ara":"Arabic",
-            "al":"Albania",
-            "am":"Armenia",
-            "az":"Azerbaijan",
-            "by":"Belarus",
-            "be":"Belgium",
-            "bd":"Bangladesh",
-            "in":"India",
-            "ba":"Bosnia and Herzegovina",
-            "br":"Brazil",
-            "bg":"Bulgaria",
-            "ma":"Morocco",
-            "mm":"Myanmar",
-            "ca":"Canada",
-            "cd":"Congo, Democratic Republic of the",
-            "cn":"China",
-            "hr":"Croatia",
-            "cz":"Czechia",
-            "dk":"Denmark",
-            "nl":"Netherlands",
-            "bt":"Bhutan",
-            "ee":"Estonia",
-            "ir":"Iran",
-            "iq":"Iraq",
-            "fo":"Faroe Islands",
-            "fi":"Finland",
             "fr":"France",
-            "gh":"Ghana",
-            "gn":"Guinea",
-            "ge":"Georgia",
             "de":"Germany",
-            "gr":"Greece",
-            "hu":"Hungary",
-            "is":"Iceland",
-            "il":"Israel",
-            "it":"Italy",
-            "jp":"Japan",
-            "kg":"Kyrgyzstan",
-            "kh":"Cambodia",
-            "kz":"Kazakhstan",
-            "la":"Laos",
-            "lata":"Latin American",
-            "lt":"Lithuania",
-            "lv":"Latvia",
-            "mao":"Maori",
-            "me":"Montenegro",
-            "mk":"Macedonia",
-            "mt":"Malta",
-            "mn":"Mongolia",
-            "no":"Norway",
-            "pl":"Poland",
-            "pt":"Portugal",
-            "ro":"Romania",
-            "ru":"Russia",
-            "rs":"Serbia",
-            "si":"Slovenia",
-            "sk":"Slovakia",
-            "es":"Spain",
-            "se":"Sweden",
-            "ch":"Switzerland",
-            "sy":"Syria",
-            "tj":"Tajikistan",
-            "lk":"Sri Lanka",
-            "th":"Thailand",
-            "tr":"Turkey",
-            "tw":"Taiwan",
-            "ua":"Ukraine",
-            "gb":"United Kingdom",
-            "uz":"Uzbekistan",
-            "vn":"Vietnam",
-            "kr":"Korea, Republic of",
-            "ie":"Ireland",
-            "pk":"Pakistan",
-            "mv":"Maldives",
-            "za":"South Africa",
-            "epo":"Esperanto",
-            "np":"Nepal",
-            "ng":"Nigeria",
-            "et":"Ethiopia",
-            "sn":"Senegal",
-            "brai":"Braille",
-            "tm":"Turkmenistan",
-            "ml":"Mali",
-            "tz":"Tanzania",
             }
     def keyboard_menu(self):
         clr()
@@ -267,6 +183,14 @@ class disk:
                 break
 
             
+    def format_disks(self, device):
+        log("Formatting the disks")
+        os.system("mkfs.ext4 " + device + "3")
+        os.system("mkfs.vfat -F32  " + device + "1")
+        os.system("mkswap " + device + "2")
+        os.system("swapon " + device + "2")
+        success("Disk formatting has been successfull")
+
     def auto_patition(self, device, swap_size):
         def parted(device, swap_size):
             return ("parted --script -a optimal " + device + " \
@@ -278,6 +202,7 @@ class disk:
 
         os.system(parted(device, swap_size).strip())
         success("Disk partitioning has been successfull")
+        self.format_disks(device)
         wait(2, "Next step in ...")
         press_enter()
 
