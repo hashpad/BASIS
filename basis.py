@@ -127,6 +127,10 @@ class keyboard:
 
     def set_layout(self, layout):
         os.system("loadkeys " + layout)
+        self.layout = layout
+    def get_layout(self):
+        return self.layout
+
 
     def finish_up(self):
         success("Layout changed successfully")
@@ -225,21 +229,26 @@ class configure_and_install:
     def gen_fstab(self):
         os.system("genfstab -U /mnt >> /mnt/etc/fstab")
         success("fstab has been generated")
-    def chroot(self):
-        os.system("arch-chroot /mnt")
-        log("chrooting into the new install")
+    def chroot(self, cmd):
+        os.system("arch-chroot /mnt " + cmd)
+        log("running " + cmd + " in chroot mode")
     def list_continent(self):
-        get_continents = subprocess.getoutput("tree -id -L 1 /usr/share/zoneinfo | tail -n +2 | tail -n -2")
+        get_continents = subprocess.getoutput('find /usr/share/zoneinfo -maxdepth 1 -type d -printf "%P\n" | tail -n +2')
         self.continents = []
+        line_num = 0
         for line in get_continents.splitlines():
             self.continents.append(line)
-            print ('''{''' + str(line.index()) + '''}--''' + line)
+            print ('''{''' + str(line_num) + '''}--''' + line)
+            line_num+=1
+            
     def list_cities(self, chosen_continent):
-        get_cities = subprocess.getoutput("tree -i -L 1 /usr/share/zoneinfo/" + chosen_continent + " | tail -n +2 | head -n -2")
+        get_cities = subprocess.getoutput('find /usr/share/zoneinfo/' + chosen_continent + ' -maxdepth 1 -type f -printf "%P\n"')
         self.cities = []
+        line_num = 0
         for line in get_cities.splitlines():
             self.cities.append(line)
-            print ('''{''' + str(line.index()) + '''}--''' + line)
+            print ('''{''' + str(line_num) + '''}--''' + line)
+            line_num+=1
 
 
     def time_zone(self):
@@ -259,28 +268,28 @@ class configure_and_install:
         self.list_cities(self.continent)
         while True:
             choice = int(get_input())
-            if(choice >= len(self.continents) or choice < 0):
-                failed("Continent number is not in the list")
+            if(choice >= len(self.cities) or choice < 0):
+                failed("city number is not in the list")
                 continue
             break
         self.city = self.cities[choice]
 
-        os.system("ln -sf /usr/share/zoneinfo/" + self.continent + "/" + self.city + " /etc/localtime")
+        self.chroot("ln -sf /usr/share/zoneinfo/" + self.continent + "/" + self.city + " /etc/localtime")
         success("timezone was set successfully")
 
     def hw_clock(self):
-        os.system("hwclock --systohc")
+        self.chroot("hwclock --systohc")
         log("Hardware clock set to system clock")
 
     def interactive_install_template(self):
-        self.install()
-        self.gen_fstab()
-        self.chroot()
+        # self.install()
+        # self.gen_fstab()
         self.time_zone()
         self.hw_clock()
 
-    def __init__(self):
+    def __init__(self, keyboard):
         clr()
+        self.keyboard = keyboard
 
 
 #Installer
@@ -289,16 +298,16 @@ class basis:
     network = network()
     keyboard = keyboard()
     disk = disk()
-    cai = configure_and_install()
+    cai = configure_and_install(keyboard)
     def __init__(self):
         clr()
         self.keyboard.keyboard_menu()
 
         self.network.network_menu()
 
-        self.disk.disk_menu()
+        # self.disk.disk_menu()
 
-        # self.cai.interactive_install_template()
+        self.cai.interactive_install_template()
 
 
             
