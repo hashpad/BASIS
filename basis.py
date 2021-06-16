@@ -51,6 +51,16 @@ def interactive(msg):
     print("> " + msg)
 def press_enter():
     input("Press Enter to continue ...")
+def print_list_parallel(l):
+    range_end = int(len(l) / 2) if int(len(l)) % 2 == 0  else int(len(l) / 2) + 1
+    for i in range(0, range_end):
+        s1 = '''{''' + str(i) + '''}--''' + l[i]
+        if((range_end + i < int(len(l)))):
+            s2 = '''{''' + str(range_end + i) + '''}--''' + l[range_end + i]
+        else:
+            s2 = ""
+        print('{0:30}  {1}'.format(s1, s2))
+
 
 
 #Internet utilities
@@ -234,21 +244,15 @@ class configure_and_install:
         log("running " + cmd + " in chroot mode")
     def list_continent(self):
         get_continents = subprocess.getoutput('find /usr/share/zoneinfo -maxdepth 1 -type d -printf "%P\n" | tail -n +2')
-        self.continents = []
-        line_num = 0
-        for line in get_continents.splitlines():
-            self.continents.append(line)
-            print ('''{''' + str(line_num) + '''}--''' + line)
-            line_num+=1
+        self.continents = get_continents.splitlines()
+        print_list_parallel(self.continents)
             
     def list_cities(self, chosen_continent):
         get_cities = subprocess.getoutput('find /usr/share/zoneinfo/' + chosen_continent + ' -maxdepth 1 -type f -printf "%P\n"')
-        self.cities = []
-        line_num = 0
-        for line in get_cities.splitlines():
-            self.cities.append(line)
-            print ('''{''' + str(line_num) + '''}--''' + line)
-            line_num+=1
+        self.cities = get_cities.splitlines()
+        print_list_parallel(self.cities)
+
+            
 
 
     def time_zone(self):
@@ -301,9 +305,9 @@ class basis:
     cai = configure_and_install(keyboard)
     def __init__(self):
         clr()
-        self.keyboard.keyboard_menu()
+        # self.keyboard.keyboard_menu()
 
-        self.network.network_menu()
+        # self.network.network_menu()
 
         # self.disk.disk_menu()
 
